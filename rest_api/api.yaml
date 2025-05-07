@@ -1,0 +1,99 @@
+openapi: "3.1.0"
+info:
+  title: Server API
+  version: "1.0"
+servers:
+  - url: https://api.server.test/v1
+
+components:
+  schemas:
+
+    # TYPE ControllerID
+    ControllerID:
+      description: Unique controller identification data
+      type: string
+
+    # TYPE ControllerSet
+    ControllerSet:
+      description: Set of controller identifications
+      type: array
+      items:
+        $ref: "#/components/schemas/ControllerID"
+      uniqueItems: true
+
+    # TYPE MeasurementData
+    MeasurementData:
+      description: Object storing measurement data entries
+      type: object
+      properties:
+
+        # Identification entries
+        timestamp:
+          description: Time when the entry was initially created
+          type: string
+          format: date-time
+        controller_id:
+          description: Id of the controller which performed the measuring
+          $ref: "#/components/schemas/ControllerID"
+
+        # Value entries
+        pm2.5:
+          description: Amount of PM2.5 particles in the air (µg/m^3)
+          type: number
+        pm10:
+          description: Amount of PM10 particles in the air (µg/m^3)
+          type: number
+        co2:
+          description: Amount of co2 molecules in the air (ppm)
+          type: number
+        temperature:
+          description: Surrounding temperature (°C)
+          type: number
+        humidity:
+          description: Relative humidity (%rH)
+          type: number
+
+paths:
+  /data:
+    get:
+      summary: Obtain data captured by the sensors
+      # Request parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+
+                # PARAM
+                controller_set:
+                  description: A subset of all available controllers which values should be searched
+                  $ref: "#/components/schemas/ControllerSet"
+
+                # PARAM count_items
+                count_items:
+                  description: The number of items that should be fetched as history BEFORE the time of NOW
+                  type: integer
+                  minimum: 1
+                  default: 1
+
+              required:
+                - controller_set
+      responses:
+
+        # RESULT Success
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+
+                type: array
+                description: Array of measured data entries
+                items:
+                  $ref: "#/components/schemas/MeasurementData"
+
+        # RESULT ???
+        '401':
+          description: Not authorized
