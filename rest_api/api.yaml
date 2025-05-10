@@ -10,8 +10,22 @@ components:
 
     # TYPE ControllerID
     ControllerID:
-      description: Unique controller identification data
+      description: Unique controller identification value
       type: string
+
+    ControllerSettings:
+      description: Properties for configuring a controller
+      type: object
+      properties:
+
+        id:
+          $ref: "#/components/schemas/ControllerID"
+        measuring_interval:
+          description: Time in Seconds between two measuring cycles
+          type: number
+          minimum: 10
+          default: 10
+
 
     # TYPE ControllerSet
     ControllerSet:
@@ -54,7 +68,28 @@ components:
           type: number
 
 paths:
-  /data:
+  # METHOD get_controllers:
+  /get_controllers:
+    get:
+      summary: Obtain a set consisting of the identifications from all available controllers
+
+      responses:
+
+        # RESULT Success
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+
+                $ref: "#/components/schemas/ControllerSet"
+
+        # RESULT ???
+        '401':
+          description: Not authorized
+
+  # METHOD get_available_controllers:
+  /get_measurement_data:
     get:
       summary: Obtain data captured by the sensors
       # Request parameters
@@ -66,7 +101,7 @@ paths:
               type: object
               properties:
 
-                # PARAM
+                # PARAM controller_set
                 controller_set:
                   description: A subset of all available controllers which values should be searched
                   $ref: "#/components/schemas/ControllerSet"
