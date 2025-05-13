@@ -9,126 +9,332 @@ components:
   schemas:
 
     # TYPE ControllerID
-    ControllerID:
-      description: Unique controller identification value
+    TControllerID:
+      description: "Unique controller identification value"
       type: string
 
-    ControllerSettings:
-      description: Properties for configuring a controller
+
+    # TYPE ControllerSettings
+    TControllerSettings:
+      description: "Properties for configuring a controller"
       type: object
+      required:
+        - id
+        - interval
       properties:
 
+        # ATTR id: ControllerID
         id:
-          $ref: "#/components/schemas/ControllerID"
-        measuring_interval:
-          description: Time in Seconds between two measuring cycles
+          description: "New controller ID"
+          $ref: "#/components/schemas/TControllerID"
+
+        # ATTR interval: Number
+        interval:
+          description: "Time between two measuring cycles (s)"
           type: number
           minimum: 10
           default: 10
 
 
     # TYPE ControllerSet
-    ControllerSet:
-      description: Set of controller identifications
+    TControllerSet:
+      description: "Set of controller identifications"
       type: array
-      items:
-        $ref: "#/components/schemas/ControllerID"
       uniqueItems: true
+      items:
+
+        # VALUES: ControllerID
+        $ref: "#/components/schemas/TControllerID"
+
 
     # TYPE MeasurementData
-    MeasurementData:
-      description: Object storing measurement data entries
+    TMeasurementData:
+      description: "Object storing measurement data entries"
       type: object
       properties:
 
-        # Identification entries
+        # ATTR pm2.5: Number
+        pm2.5:
+          description: "Amount of PM2.5 particles in the air (µg/m^3)"
+          type: number
+        # ATTR pm10: Number
+        pm10:
+          description: "Amount of PM10 particles in the air (µg/m^3)"
+          type: number
+        # ATTR co2: Number
+        co2:
+          description: "Amount of co2 molecules in the air (ppm)"
+          type: number
+        # ATTR temperature: Number
+        temperature:
+          description: "Surrounding temperature (°C)"
+          type: number
+        # ATTR humidity: Number
+        humidity:
+          description: "Relative humidity (%rH)"
+          type: number
+
+
+    # TYPE MeasurementDataSpecific
+    TMeasurementDataSpecific:
+      description: "Object storing measurement data entries for a specific controller"
+      type: object
+      properties:
+
+        # ATTR timestamp: DateTime
         timestamp:
-          description: Time when the entry was initially created
+          description: "Time when the entry was initially created"
           type: string
           format: date-time
-        controller_id:
-          description: Id of the controller which performed the measuring
-          $ref: "#/components/schemas/ControllerID"
 
-        # Value entries
-        pm2.5:
-          description: Amount of PM2.5 particles in the air (µg/m^3)
-          type: number
-        pm10:
-          description: Amount of PM10 particles in the air (µg/m^3)
-          type: number
-        co2:
-          description: Amount of co2 molecules in the air (ppm)
-          type: number
-        temperature:
-          description: Surrounding temperature (°C)
-          type: number
-        humidity:
-          description: Relative humidity (%rH)
-          type: number
+        # ATTR id: ControllerID
+        id:
+          description: "Id of the controller which performed the measuring"
+          $ref: "#/components/schemas/TControllerID"
+
+        # ATTR data: MeasurementData
+        data:
+          description: "Data with measurement data"
+          $ref: "#/components/schemas/TMeasurementData"
 
 paths:
-  # METHOD get_controllers:
-  /get_controllers:
-    get:
-      summary: Obtain a set consisting of the identifications from all available controllers
+  # MODULE controller
+  /controller:
 
+    # GET controller: all controller ids
+    get:
+      summary: "Get the IDs of all registered controllers"
+
+      # NO Parameters
+      # NO Request body
+
+      # Results
       responses:
 
         # RESULT Success
-        '200':
-          description: Success
+        '201':
+          description: "SUCCESS"
           content:
             application/json:
               schema:
 
-                $ref: "#/components/schemas/ControllerSet"
+                # IS ControllerSet
+                $ref: "#/components/schemas/TControllerSet"
 
-        # RESULT ???
-        '401':
-          description: Not authorized
 
-  # METHOD get_available_controllers:
-  /get_measurement_data:
-    get:
-      summary: Obtain data captured by the sensors
-      # Request parameters
+    # POST controller: create a new controller
+    post:
+      summary: "Add a new controller as a thing"
+
+      # NO Parameters
+
+      # Request body
       requestBody:
+        description: "New controller settings"
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
 
-                # PARAM controller_set
-                controller_set:
-                  description: A subset of all available controllers which values should be searched
-                  $ref: "#/components/schemas/ControllerSet"
+              # IS ControllerSettings
+              $ref: "#/components/schemas/TControllerSettings"
 
-                # PARAM count_items
-                count_items:
-                  description: The number of items that should be fetched as history BEFORE the time of NOW
-                  type: integer
-                  minimum: 1
-                  default: 1
-
-              required:
-                - controller_set
+      # Results
       responses:
 
         # RESULT Success
-        '200':
-          description: Success
+        '201':
+          description: "SUCCESS"
+
+        # RESULT Error_Already
+        '409':
+          description: "ERROR: ID already registered"
+
+
+  # MODULE controller/{id}
+  /controller/{id}:
+
+    # GET controller/{id}: Get a controller's settings
+    get:
+      summary: "Get the settings of a controller"
+
+      # Parameters
+      parameters:
+
+        # PATH-PARAM id
+        - name: id
+          in: path
+          description: "The controller's ID"
+          required: true
+          schema:
+
+            # IS TControllerID
+            $ref: "#/components/schemas/TControllerID"
+
+      # NO Request body
+
+      # Results
+      responses:
+
+        # RESULT Success
+        '201':
+          description: "SUCCESS: Getting the controller settings"
           content:
             application/json:
               schema:
 
+                # IS TControllerSettings
+                $ref: "#/components/schemas/TControllerSettings"
+
+        # RESULT Error_NotFound
+        '404':
+          description: "ERROR: ID not found"
+
+
+    # PUT controller/{id}: Modify a controller's settings
+    put:
+      summary: "Modify the settings of a controller"
+
+      # Parameters
+      parameters:
+
+        # PATH-PARAM id
+        - name: id
+          in: path
+          description: "The controller's ID"
+          required: true
+          schema:
+
+            # IS TControllerID
+            $ref: "#/components/schemas/TControllerID"
+
+      # Request body
+      requestBody:
+        description: "New controller settings"
+        required: true
+        content:
+          application/json:
+            schema:
+
+              # IS ControllerSettings
+              $ref: "#/components/schemas/TControllerSettings"
+
+      # Results
+      responses:
+
+        # RESULT Success
+        '201':
+          description: "SUCCESS"
+
+        # RESULT Error_NotFound
+        '404':
+          description: "ERROR: ID not found"
+
+
+    # DELETE controller: remove a controller
+    delete:
+      summary: "Remove a controller (got by ID)"
+
+      # Parameters
+      parameters:
+
+        # PATH-PARAM id
+        - name: id
+          in: path
+          description: "The controller's ID"
+          required: true
+          schema:
+
+            # IS TControllerID
+            $ref: "#/components/schemas/TControllerID"
+
+      # NO Request body
+
+      # Results
+      responses:
+
+        # RESULT Success
+        '201':
+          description: "SUCCESS: Getting the controller settings"
+
+          # RESULT Error_NotFound
+        '404':
+          description: "ERROR: ID not found"
+
+
+  # MODULE data/history
+  /data/history:
+
+    # GET data/history: Get filtered data entries over a time
+    get:
+      description: "Get saved measurement data entries"
+
+      # Parameters
+      parameters:
+
+        # QUERY-PARAM count
+        - name: count
+          in: query
+          description: "Count LATEST elements to get"
+          required: true
+          schema:
+
+            # IS Integer
+            type: integer
+            minimum: 1
+            default: 1
+
+        # QUERY-PARAM ids
+        - name: ids
+          in: query
+          description: "Controller ids"
+          required: true
+          schema:
+
+            # IS ControllerSet
+            $ref: "#/components/schemas/TControllerSet"
+
+      # NO Request body
+
+      # Results
+      responses:
+
+        # RESULT Success
+        '201':
+          description: "SUCCESS: Getting the data"
+          content:
+            application/json:
+              schema:
+
+                # IS MeasurementDataSpecific ARRAY
                 type: array
                 description: Array of measured data entries
                 items:
-                  $ref: "#/components/schemas/MeasurementData"
+                  $ref: "#/components/schemas/TMeasurementDataSpecific"
 
-        # RESULT ???
-        '401':
-          description: Not authorized
+
+  # MODULE data/ref_value
+  /data/ref_value:
+
+    # GET data/ref_value: Get reference data entries
+    get:
+      description: "Get standard/reference data entries"
+
+      # NO Parameters
+      # NO Request body
+
+      # Results
+      responses:
+
+        # RESULT Success
+        '201':
+          description: "SUCCESS: Getting the data"
+          content:
+            application/json:
+              schema:
+
+                # IS MeasurementData ARRAY
+                type: array
+                description: Array of measured data entries
+                items:
+                  $ref: "#/components/schemas/TMeasurementData"
