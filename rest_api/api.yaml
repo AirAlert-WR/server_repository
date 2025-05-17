@@ -2,10 +2,24 @@ openapi: "3.1.0"
 info:
   title: Server API
   version: "1.0"
-servers:
-  - url: https://api.server.test/v1
 
 components:
+
+  # Security: Cognito
+  securitySchemes:
+    cognito_auth:
+
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: "" #TODO
+          tokenUrl:         "" #TODO
+          scopes:
+            openid:   "OpenID access"
+            email:    "Email access"
+            profile:  "Profile access"
+
+  # Schemas and Definitions
   schemas:
 
     # TYPE ControllerID
@@ -96,6 +110,10 @@ components:
         data:
           description: "Data with measurement data"
           $ref: "#/components/schemas/TMeasurementData"
+
+# Security implementation
+security:
+  - cognito_auth: [ openid ]
 
 paths:
   # MODULE controller
