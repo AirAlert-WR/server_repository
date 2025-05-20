@@ -1,23 +1,27 @@
 openapi: "3.1.0"
 info:
-  title: Server API
+  title: AirAlert REST API
   version: "1.0"
+
+# Security implementation
+security:
+  - cognito_auth: [ ]
 
 components:
 
-  # Security: Cognito
+  # Security: Cognito (token inside HEADER)
   securitySchemes:
     cognito_auth:
+      description: "The authorization manager for secure access"
+      type: apiKey
+      name: "Authorization"
+      in: header
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
 
-      type: oauth2
-      flows:
-        authorizationCode:
-          authorizationUrl: "" #TODO
-          tokenUrl:         "" #TODO
-          scopes:
-            openid:   "OpenID access"
-            email:    "Email access"
-            profile:  "Profile access"
+          # IMPORTANT: UPDATE this "pool ARN key" if necessary
+          - arn:aws:cognito-idp:eu-central-1:537108026853:userpool/eu-central-1_t07S3boLv
 
   # Schemas and Definitions
   schemas:
@@ -110,10 +114,6 @@ components:
         data:
           description: "Data with measurement data"
           $ref: "#/components/schemas/TMeasurementData"
-
-# Security implementation
-security:
-  - cognito_auth: [ openid ]
 
 paths:
   # MODULE controller
