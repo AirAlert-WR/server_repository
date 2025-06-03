@@ -1,0 +1,47 @@
+@startuml
+hide empty fields
+hide empty methods
+
+!define ER_ENTITY(x) class x << (E,#FFAAAA) >>
+!define ER_RELATION(x) class x << (R,#AAFFAA) >>
+!define ER_ATTRIBUTE(x) class x << (A,#AAAFFF) >>
+!define ER_ENTITY(x) class x << (E,#FFAAAA) >>
+!define ER_RELATION(x) class x << (R,#AAFFAA) >>
+!define ER_ATTRIBUTE(x) class x << (A,#AAAFFF) >>
+
+' === Entities ===
+ER_ENTITY(Cloud)
+ER_ENTITY(Controller)
+ER_ENTITY(Sensor)
+ER_ENTITY(Database)
+ER_ENTITY(WebApp)
+ER_ENTITY(API)
+
+' === Relationships ===
+Cloud "1" -- "0..n" Controller : manages >
+Controller "1" -- "0..n" Sensor : has >
+Cloud "1" -- "1" Database : writes to >
+Cloud "1" -- "1" WebApp : hosts >
+Cloud "1" -- "1" API : provides >
+WebApp "1" -- "1" API : accesses >
+
+' === Notes ===
+note right of Cloud
+AWS IoT Core
+API Gateway
+end note
+
+note right of API
+REST API
+provided via API Gateway
+end note
+
+note right of WebApp
+Amplify-based Frontend
+end note
+
+note right of Database
+Stores all sensor data
+end note
+
+@enduml
