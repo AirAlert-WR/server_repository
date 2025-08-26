@@ -1,0 +1,41 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": "arn:aws:logs:eu-central-1:537108026853:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:eu-central-1:537108026853:log-group:/aws/lambda/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iot:GetThingShadow"
+            ],
+            "Resource": "arn:aws:iot:eu-central-1:537108026853:thing/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iot:Publish"
+            ],
+            "Resource": "arn:aws:iot:eu-central-1:537108026853:topic/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:PutItem"
+            ],
+            "Resource": "arn:aws:dynamodb:eu-central-1:537108026853:table/AirAlertData"
+        }
+    ]
+}
