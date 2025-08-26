@@ -24,7 +24,7 @@
 
    SELECT topic() as id, * as data FROM '+/sensor'
 
-4. At the rule actions, please select "Lambda" and later the recently created function, "TODO" in this case.
+4. At the **rule actions**, please select "Lambda" and later the recently created function, "HandleMeasurementLambda" in this case.
 5. Confirm and enable the rule.
 
 ### The IoT and retrigger section is now ready to use.
