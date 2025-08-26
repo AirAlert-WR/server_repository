@@ -10,7 +10,7 @@ Make sure you have logged in with a valid cloud account, **preferably with admin
 
 1. **Database configuration**: proceed [here](database/)
 2. **Storage configuration**: proceed [here](storage/)
-3. **IoT and Lambda configuration**: proceed [here](here)
+3. **IoT and Lambda configuration**: proceed [here](IoT + Lambda/)
 
 ### I'm promising:
 
