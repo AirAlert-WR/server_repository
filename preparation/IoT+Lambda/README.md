@@ -1,3 +1,6 @@
+## Big disclaimer
+While placing the rules, policies and the function source code, please make sure the **ARN of all resources is replaced with YOUR OWN ONE**, otherwise the execution will throw **resource permission errors**.
+
 # Configure IoT Core for the cloud
 
 ## A. Certificate for the controllers
