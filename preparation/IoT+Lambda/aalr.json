@@ -36,6 +36,11 @@
                 "dynamodb:PutItem"
             ],
             "Resource": "arn:aws:dynamodb:eu-central-1:537108026853:table/AirAlertData"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "execute-api:Invoke",
+            "Resource": "arn:aws:execute-api:eu-central-1:537108026853:8nh6ehtws2/*/GET/controllers"
         }
     ]
 }
