@@ -15,6 +15,13 @@ export const handler = async (event) => {
 
     const thingId = extractThingId(topic); // "controller-Test123/sensor" → "controller-Test123"
 
+    // Check if controller is registered (will be ignored if not the case)
+    const authorized = await isControllerAuthorized(thingId);
+    if (!authorized) {
+      console.warn(`Controller ${thingId} is NOT given. Ignoring data.`);
+      return { statusCode: 403, body: "Unauthorized controller" };
+    }
+
     // TRANSFORMING DATA into DynamoDB object format
     const transformedData = {};
     for (const key in payload) {
@@ -74,6 +81,26 @@ function extractThingId(topic) {
   // Example topic: "controller-Test123/sensor"
   return topic.split("/")[0]; // "controller-Test123"
 }
+
+async function isControllerAuthorized(thingId) {
+  const apiUrl = "https://8nh6ehtws2.execute-api.eu-central-1.amazonaws.com/dev/controllers";
+
+  try {
+    const response = await fetch(apiUrl, { method: "GET" });
+    if (!response.ok) {
+      console.error("API responded with status:", response.status);
+      return false;
+    }
+    const controllers = await response.json();
+
+    // Expecting: List of Controller IDs (should be given)
+    return controllers.some(c => c === thingId);
+  } catch (err) {
+    console.error("Error checking controller authorization:", err);
+    return false;
+  }
+}
+
 
 function sleep(ms) {
   // Asynchronous internal timeout command
